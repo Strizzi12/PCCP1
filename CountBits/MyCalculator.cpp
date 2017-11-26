@@ -24,16 +24,15 @@ ifstream::pos_type MyCalculator::GetFileSize(const char* fileName)
 */
 uint64_t MyCalculator::CountBits(vector<BYTE> vec)
 {
-	uint64_t sum1 = 0;
+	uint64_t sumOf1 = 0;
 	for (int i = 0; i < vec.size(); i++)
 	{
-		sum1 += CheatingVector[vec[i]];
+		sumOf1 += CheatingVector[vec[i]];
 	}
-
-	return sum1;
+	return sumOf1;
 }
 
-unsigned char CheatingVector[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
+unsigned char CheatingVector[] ={ 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4,
 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2,

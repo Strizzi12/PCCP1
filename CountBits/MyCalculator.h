@@ -11,10 +11,12 @@ class MyCalculator
 public:
 	MyCalculator();
 	~MyCalculator();
-	static unsigned char CheatingVector[];
 	
 	static ifstream::pos_type GetFileSize(const char * fileName);
 	static uint64_t CountBits(vector<BYTE> vec);
+
+private:
+	static unsigned char CheatingVector[];
 };
 
 
