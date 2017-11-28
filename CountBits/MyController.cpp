@@ -2,13 +2,15 @@
 #include <iostream>
 #include "string"
 #include <algorithm>
+#include "MyCalculator.h"
+#include <boost/iostreams/device/mapped_file.hpp>
 
 using namespace std;
 
 MyController::MyController()
 {
 	error = false;
-	waitForTermination = false;
+	waitForTermination = true;
 	printProcessTime = false;
 	optimizeThreadCount = false;
 	maxThreads = 0;

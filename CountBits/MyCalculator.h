@@ -13,10 +13,10 @@ public:
 	~MyCalculator();
 	
 	ifstream::pos_type GetFileSize(const char * fileName);
-	uint64_t CountBits(vector<BYTE> vec);
+	uint64_t CountBits(BYTE *data, int fileSize);
 
-private:
-	unsigned char CheatingVector[];
+//private:
+	BYTE CheatingVector[];
 };
 
 
