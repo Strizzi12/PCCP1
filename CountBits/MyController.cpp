@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "MyController.h"
 #include <iostream>
 #include "string"

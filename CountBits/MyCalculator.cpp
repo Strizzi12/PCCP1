@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "MyCalculator.h"
 #include <iostream>
 #include <vector>

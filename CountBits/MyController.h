@@ -11,22 +11,22 @@ public:
 	~MyController();
 
 	//Variables
-	static bool waitForTermination;
-	static bool printProcessTime;
-	static int maxThreads;
-	static bool optimizeThreadCount;
-	static bool error;
-	static string fileFilter;
-	static vector<string> filePaths;
-	static int depthOfRecursion;
+	bool waitForTermination;
+	bool printProcessTime;
+	int maxThreads;
+	bool optimizeThreadCount;
+	bool error;
+	string fileFilter;
+	vector<string> filePaths;
+	int depthOfRecursion;
 
 	//Functions
-		static void ParseInputArguments(int argc, char* argv[]);
-	static void PrintHelp();
-	static void WaitForTermination();
+	void ParseInputArguments(int argc, char* argv[]);
+	void PrintHelp();
+	void WaitForTermination();
 
 private:
-	static bool IsAllDigits(string &str);
+	bool IsAllDigits(string &str);
 
 };
 
