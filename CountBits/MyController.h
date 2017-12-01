@@ -19,6 +19,7 @@ public:
 	string fileFilter;
 	vector<string> filePaths;
 	int depthOfRecursion;
+	int currentRecursion;
 
 	//Functions
 	void ParseInputArguments(int argc, char* argv[]);

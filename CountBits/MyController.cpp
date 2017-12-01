@@ -17,7 +17,7 @@ MyController::MyController()
 	fileFilter = string("");		//if fileFilter is "", then take all files
 	filePaths = vector<string>();
 	depthOfRecursion = 0;
-}
+	currentRecursion = 0;}
 
 
 MyController::~MyController()
