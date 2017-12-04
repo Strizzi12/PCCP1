@@ -28,13 +28,14 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 	{
 		MyCalculator myCalculator;
 		MyResult result;
-
+		
 		boost::filesystem::path targetDir(path);
 		boost::filesystem::directory_iterator it(targetDir), eod;
-
+		
 		BOOST_FOREACH(boost::filesystem::path const &p, std::make_pair(it, eod))
 		{
 			uint64_t sum1 = 0;
+			//boost::filesystem::detail::permissions(targetDir, boost::filesystem::others_read | boost::filesystem::owner_read);
 			if (is_directory(p) && myController.depthOfRecursion != myController.currentRecursion && myController.depthOfRecursion != 0)
 			{
 				myController.currentRecursion++;
@@ -89,12 +90,12 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 	}
 	catch (boost::filesystem::filesystem_error &ex)
 	{
-		cerr << ex.what() << endl;
+		cerr << "Boost filesystem error: " << ex.what() << endl;
 		return MyResult();
 	}
 	catch (exception &ex)
 	{
-		cerr << ex.what() << endl;
+		cerr << "Error: " << ex.what() << endl;
 		return MyResult();
 	}
 }
