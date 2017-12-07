@@ -5,6 +5,7 @@
 #include <boost/filesystem/string_file.hpp>
 #include <boost/foreach.hpp>
 #include "MyResult.h"
+#include <regex>
 
 
 MyCalculator::MyCalculator()
@@ -28,15 +29,13 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 	{
 		MyCalculator myCalculator;
 		MyResult result;
-		
+
 		boost::filesystem::path targetDir(path);
 		boost::filesystem::directory_iterator it(targetDir), eod;
-		
+
 		BOOST_FOREACH(boost::filesystem::path const &p, std::make_pair(it, eod))
 		{
 			MyResult temp;
-			uint64_t sum1;
-			//boost::filesystem::detail::permissions(targetDir, boost::filesystem::others_read | boost::filesystem::owner_read);
 			if (is_directory(p) && myController.DepthOfRecursion != myController.CurrentRecursion && myController.DepthOfRecursion != 0)
 			{
 				myController.CurrentRecursion++;
@@ -55,39 +54,52 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 			}
 			else if (is_regular_file(p))
 			{
+				uint64_t sum1 = 0;
+
 				const string filename = p.filename().string();
-				string fullPath = string(path) + "\\" + filename;
 
-				const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
-				if (uint64_t(fileSize) == 0)
+				//Check file name
+				for (auto token : myController.FileFilter)
 				{
-					continue;
-				}
-				myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+					regex rx("(\.[a-zA-Z])\w*");
+					bool found = regex_match(token, rx);
+					if (found != true)
+					{
+						continue;
+					}
+					
+					string fullPath = string(path) + "\\" + filename;
+					const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
+					if (uint64_t(fileSize) == 0)
+					{
+						continue;
+					}
+					myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
 
-				boost::iostreams::mapped_file_source file; //is already readonly
-				file.open(fullPath.c_str(), fileSize);
+					boost::iostreams::mapped_file_source file; //is already readonly
+					file.open(fullPath.c_str(), fileSize);
 
-				// Check if file was successfully opened
-				if (file.is_open()) {
+					// Check if file was successfully opened
+					if (file.is_open()) {
 
-					// Get pointer to the data
-					BYTE *data = (BYTE *)file.data();
+						// Get pointer to the data
+						BYTE *data = (BYTE *)file.data();
 
-					// Do something with the data
-					sum1 = myCalculator.CountBits(data, fileSize);
+						// Do something with the data
+						sum1 = myCalculator.CountBits(data, fileSize);
 
-					// Remember to unmap the file
-					file.close();
-				}
-				else {
-					cerr << "Could not map the file" << endl;
-					return MyResult();
-				}
-				result.SumBit0 += ((fileSize * 8) - sum1);
-				result.SumBit1 += sum1;
-				result.FileSize += fileSize;
-			}			
+						// Remember to unmap the file
+						file.close();
+					}
+					else {
+						cerr << "Could not map the file" << endl;
+						return MyResult();
+					}
+					result.SumBit0 += ((fileSize * 8) - sum1);
+					result.SumBit1 += sum1;
+					result.FileSize += fileSize;
+				}				
+			}
 		}
 		return result;
 	}

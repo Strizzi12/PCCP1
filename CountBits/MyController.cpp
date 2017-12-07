@@ -1,6 +1,7 @@
 #include "MyController.h"
 #include <iostream>
 #include "string"
+#include <sstream> 
 #include <algorithm>
 #include "MyCalculator.h"
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -14,7 +15,7 @@ MyController::MyController()
 	PrintProcessTime = false;
 	OptimizeThreadCount = false;
 	MaxThreads = 0;
-	FileFilter = string("");		//if fileFilter is "", then take all files
+	FileFilter = vector<string>();		//if fileFilter is "", then take all files
 	FilePaths = vector<string>();
 	DepthOfRecursion = 0;
 	CurrentRecursion = 0;
@@ -74,7 +75,13 @@ void MyController::ParseInputArguments(int argc, char* argv[])
 		}
 		if (argv[i] == "-f" && argv[i + 1] != NULL)
 		{
-			FileFilter = string(argv[i + 1]);
+			auto completeString = string(argv[i + 1]);
+			stringstream test(completeString);
+			string segment;
+			while (getline(test, segment, ';'))
+			{
+				FileFilter.push_back(segment);
+			}
 			i++;									//Counter can be increased because the value of fileFilter is already read.
 			continue;
 		}

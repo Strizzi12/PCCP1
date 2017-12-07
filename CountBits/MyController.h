@@ -19,7 +19,7 @@ public:
 	int MaxThreads;
 	bool OptimizeThreadCount;
 	bool Error;
-	string FileFilter;
+	vector<string> FileFilter;
 	vector<string> FilePaths;
 	int DepthOfRecursion;
 	int CurrentRecursion;
