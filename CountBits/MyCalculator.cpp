@@ -34,20 +34,21 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 		
 		BOOST_FOREACH(boost::filesystem::path const &p, std::make_pair(it, eod))
 		{
-			uint64_t sum1 = 0;
+			MyResult temp;
+			uint64_t sum1;
 			//boost::filesystem::detail::permissions(targetDir, boost::filesystem::others_read | boost::filesystem::owner_read);
-			if (is_directory(p) && myController.depthOfRecursion != myController.currentRecursion && myController.depthOfRecursion != 0)
+			if (is_directory(p) && myController.DepthOfRecursion != myController.CurrentRecursion && myController.DepthOfRecursion != 0)
 			{
-				myController.currentRecursion++;
+				myController.CurrentRecursion++;
 				//call countBits function again with new path
-				MyResult temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
+				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
 				result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
 			}
-			else if (is_directory(p) && myController.depthOfRecursion == 0)
+			else if (is_directory(p) && myController.DepthOfRecursion == 0)
 			{
-				MyResult temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
+				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
 				result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
@@ -62,6 +63,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				{
 					continue;
 				}
+				myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+
 				boost::iostreams::mapped_file_source file; //is already readonly
 				file.open(fullPath.c_str(), fileSize);
 
@@ -81,7 +84,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					cerr << "Could not map the file" << endl;
 					return MyResult();
 				}
-				result.SumBit0 += (uint64_t)fileSize * (uint64_t)8 - sum1;
+				result.SumBit0 += ((fileSize * 8) - sum1);
 				result.SumBit1 += sum1;
 				result.FileSize += fileSize;
 			}			
