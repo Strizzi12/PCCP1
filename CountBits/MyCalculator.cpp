@@ -7,7 +7,6 @@
 #include "MyResult.h"
 #include <regex>
 
-
 MyCalculator::MyCalculator()
 {
 }
@@ -58,16 +57,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 
 				const string filename = p.filename().string();
 
-				//Check file name
-				for (auto token : myController.FileFilter)
+				if (myController.FileFilter.empty() == true)
 				{
-					regex rx("(\.[a-zA-Z])\w*");
-					bool found = regex_match(token, rx);
-					if (found != true)
-					{
-						continue;
-					}
-					
 					string fullPath = string(path) + "\\" + filename;
 					const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
 					if (uint64_t(fileSize) == 0)
@@ -98,7 +89,51 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					result.SumBit0 += ((fileSize * 8) - sum1);
 					result.SumBit1 += sum1;
 					result.FileSize += fileSize;
-				}				
+				}
+				else
+				{
+					//Check file name
+					for (auto token : myController.FileFilter)
+					{
+						regex rx("(\.[a-zA-Z])\w*");
+						bool found = regex_match(token, rx);
+						if (found != true)
+						{
+							continue;
+						}
+
+						string fullPath = string(path) + "\\" + filename;
+						const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
+						if (uint64_t(fileSize) == 0)
+						{
+							continue;
+						}
+						myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+
+						boost::iostreams::mapped_file_source file; //is already readonly
+						file.open(fullPath.c_str(), fileSize);
+
+						// Check if file was successfully opened
+						if (file.is_open()) {
+
+							// Get pointer to the data
+							BYTE *data = (BYTE *)file.data();
+
+							// Do something with the data
+							sum1 = myCalculator.CountBits(data, fileSize);
+
+							// Remember to unmap the file
+							file.close();
+						}
+						else {
+							cerr << "Could not map the file" << endl;
+							return MyResult();
+						}
+						result.SumBit0 += ((fileSize * 8) - sum1);
+						result.SumBit1 += sum1;
+						result.FileSize += fileSize;
+					}
+				}
 			}
 		}
 		return result;
@@ -120,9 +155,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 */
 uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 {
-	//This array needs to be initialized in here
-
-	BYTE Cheating[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
+	//This array needs to be initialized in here	
+	const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 		4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
 		3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4,
 		5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2,

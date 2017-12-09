@@ -19,6 +19,3 @@ public:
 	MyResult CountBitsOf1ForPath(const char *path, MyController &myController);
 
 };
-
-
-
