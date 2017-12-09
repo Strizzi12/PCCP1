@@ -158,12 +158,14 @@
   <ItemGroup>
     <ClInclude Include="MyCalculator.h" />
     <ClInclude Include="MyController.h" />
+    <ClInclude Include="MyResult.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyCalculator.cpp" />
     <ClCompile Include="MyController.cpp" />
+    <ClCompile Include="MyResult.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,8 @@
 #include "MyController.h"
+#include <Windows.h>
 #include <iostream>
 #include "string"
+#include <sstream> 
 #include <algorithm>
 #include "MyCalculator.h"
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -9,14 +11,16 @@ using namespace std;
 
 MyController::MyController()
 {
-	error = false;
-	waitForTermination = true;
-	printProcessTime = false;
-	optimizeThreadCount = false;
-	maxThreads = 0;
-	fileFilter = string("");		//if fileFilter is "", then take all files
-	filePaths = vector<string>();
-	depthOfRecursion = 0;
+	Error = false;
+	WaitForTermination = true;
+	PrintProcessTime = false;
+	OptimizeThreadCount = false;
+	MaxThreads = 0;
+	FileFilter = vector<string>();		//if fileFilter is "", then take all files
+	FilePaths = vector<string>();
+	DepthOfRecursion = 0;
+	CurrentRecursion = 0;
+	MoreInfo = false;
 }
 
 
@@ -30,12 +34,12 @@ void MyController::ParseInputArguments(int argc, char* argv[])
 	{
 		if (argv[i] == "-w")
 		{
-			waitForTermination = true;
+			WaitForTermination = true;
 			continue;
 		}
 		if (argv[i] == "-p")
 		{
-			printProcessTime = true;
+			PrintProcessTime = true;
 			continue;
 		}
 		if (argv[i] == "-t" && argv[i + 1] != NULL)
@@ -43,37 +47,48 @@ void MyController::ParseInputArguments(int argc, char* argv[])
 			const char* str = "-";
 			if (strstr(argv[i + 1], str) != NULL)	//Check if the next input argument is another functionality.
 			{
-				optimizeThreadCount = true;			//When file size is known, a calculation of the optimal thread count could be made.
+				OptimizeThreadCount = true;			//When file size is known, a calculation of the optimal thread count could be made.
 				continue;
 			}
 			string help(argv[i + 1]);
 			if (IsAllDigits(help))
 			{
-				maxThreads = stoi(help);
+				MaxThreads = stoi(help);
 				i++;								//Counter can be increased because the value of maxThreads is already read.
 				continue;
 			}
 			else
 			{
 				cerr << "Error! Max. thread count must not contain character." << endl;
-				error = true;
+				Error = true;
 				break;
-			}			
+			}
 		}
 		if (argv[i] == "-h")
 		{
 			PrintHelp();
 			continue;
 		}
+		if (argv[i] == "-v")
+		{
+			MoreInfo = true;
+			continue;
+		}
 		if (argv[i] == "-f" && argv[i + 1] != NULL)
 		{
-			fileFilter = string(argv[i + 1]);
+			auto completeString = string(argv[i + 1]);
+			stringstream test(completeString);
+			string segment;
+			while (getline(test, segment, ';'))
+			{
+				FileFilter.push_back(segment);
+			}
 			i++;									//Counter can be increased because the value of fileFilter is already read.
 			continue;
 		}
 		if (argv[i] == "-s" && argv[i + 1] != NULL)
 		{
-			filePaths.push_back(string(argv[i + 1]));
+			FilePaths.push_back(string(argv[i + 1]));
 			i++;									//Counter can be increased because the value of filePath is already read.
 			continue;
 		}
@@ -82,27 +97,27 @@ void MyController::ParseInputArguments(int argc, char* argv[])
 			const char* str = "-";
 			if (strstr(argv[i + 1], str) != NULL)	//Check if the next input argument is another functionality.
 			{
-				depthOfRecursion = 0;				//All files and folders are progressed
+				DepthOfRecursion = 0;				//All files and folders are progressed
 				continue;
 			}
 			string help(argv[i + 1]);
 			if (IsAllDigits(help))
 			{
-				depthOfRecursion = stoi(help);
+				DepthOfRecursion = stoi(help);
 				i++;								//Counter can be increased because the value of maxThreads is already read.
 				continue;
 			}
 			else
 			{
 				cerr << "Error! Folder depth must not contain character." << endl;
-				error = true;
+				Error = true;
 				break;
 			}
 		}
 		else
 		{
 			cerr << "Error! Unknown argument detected." << endl;
-			error = true;
+			Error = true;
 			break;
 		}
 	}
@@ -122,14 +137,52 @@ void MyController::PrintHelp()
 	cout << "-t maxThreads		maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert." << endl << endl;
 	cout << "-h					Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird." << endl << endl;
 	cout << "-p					Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden" << endl << endl;
+	cout << "-v					Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout" << endl << endl;
 	cout << "-w					Warten auf eine Taste unmittelbar bevor die applikation terminiert." << endl;
 }
 
-void MyController::WaitForTermination()
+void MyController::Wait()
 {
-	if (waitForTermination == true)
+	if (WaitForTermination == true)
 	{
 		cin.ignore();
+	}
+}
+
+void MyController::MyPrint(string str)
+{
+	if (MoreInfo == true)
+	{
+		cout << str << endl;
+	}
+}
+
+void MyController::PrintTime()
+{
+	if (PrintProcessTime == true)
+	{
+		printf("Time taken: %.6fs\n", double(StopTime - StartTime) / CLOCKS_PER_SEC);
+	}
+}
+
+clock_t MyController::GetTime()
+{
+	return clock();
+}
+
+void MyController::SetStartTime()
+{
+	if (PrintProcessTime == true)
+	{
+		StartTime = GetTime();
+	}
+}
+
+void MyController::SetStopTime()
+{
+	if (PrintProcessTime == true)
+	{
+		StopTime = GetTime();
 	}
 }
 
