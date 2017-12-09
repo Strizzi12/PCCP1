@@ -38,11 +38,12 @@ ifstream::pos_type MyCalculator::GetFileSize(const char* fileName)
 
 MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myController)
 {
+
+	MyCalculator myCalculator;
+	MyResult result;
+
 	try
 	{
-		MyCalculator myCalculator;
-		MyResult result;
-
 		boost::filesystem::path targetDir(path);
 		boost::filesystem::directory_iterator it(targetDir), eod;
 
@@ -70,7 +71,11 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				uint64_t sum1 = 0;
 
 				const string filename = p.filename().string();
-
+				if (filename == "")
+				{
+					cerr << "Error: Filename cannot be empty" << endl;
+					continue;
+				}
 				if (myController.FileFilter.empty() == true)
 				{
 					string fullPath = string(path) + "\\" + filename;
@@ -80,26 +85,38 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						continue;
 					}
 					myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+					try
+					{
+						boost::iostreams::mapped_file_source file; //is already readonly
+						file.open(fullPath.c_str(), fileSize);
+						// Check if file was successfully opened
+						if (file.is_open()) {
 
-					boost::iostreams::mapped_file_source file; //is already readonly
-					file.open(fullPath.c_str(), fileSize);
+							// Get pointer to the data
+							BYTE *data = (BYTE *)file.data();
 
-					// Check if file was successfully opened
-					if (file.is_open()) {
+							// Do something with the data
+							sum1 = myCalculator.CountBits(data, fileSize);
 
-						// Get pointer to the data
-						BYTE *data = (BYTE *)file.data();
-
-						// Do something with the data
-						sum1 = myCalculator.CountBits(data, fileSize);
-
-						// Remember to unmap the file
-						file.close();
+							// Remember to unmap the file
+							file.close();
+						}
+						else {
+							cerr << "Could not map the file" << endl;
+							return MyResult();
+						}
 					}
-					else {
-						cerr << "Could not map the file" << endl;
-						return MyResult();
+					catch (boost::filesystem::filesystem_error &ex)
+					{
+						cerr << "Boost filesystem error: " << ex.what() << endl;
+						continue;
 					}
+					catch (exception &ex)
+					{
+						cerr << "Error: " << ex.what() << endl;
+						continue;
+					}
+
 					result.SumBit0 += ((fileSize * 8) - sum1);
 					result.SumBit1 += sum1;
 					result.FileSize += fileSize;
@@ -149,8 +166,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					}
 				}
 			}
+
 		}
-		return result;
 	}
 	catch (boost::filesystem::filesystem_error &ex)
 	{
@@ -162,6 +179,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 		cerr << "Error: " << ex.what() << endl;
 		return MyResult();
 	}
+	return result;
 }
 
 /*
@@ -170,7 +188,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 {
 	//This array needs to be initialized in here	
-	
+
 	uint64_t sumOf1 = 0;
 
 	//#pragma omp parallel for reduction (+:total)

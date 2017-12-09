@@ -161,7 +161,7 @@ void MyController::PrintTime()
 {
 	if (PrintProcessTime == true)
 	{
-		printf("Time taken: %.6lds\n", (StartTime - StopTime) / CLOCKS_PER_SEC);
+		printf("Time taken: %.6fs\n", double(StopTime - StartTime) / CLOCKS_PER_SEC);
 	}
 }
 
