@@ -10,8 +10,6 @@ class MyController
 public:
 	MyController();
 	~MyController();
-	
-
 
 	//Variables
 	bool WaitForTermination;
