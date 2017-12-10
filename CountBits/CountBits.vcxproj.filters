@@ -27,7 +27,7 @@
     <ClInclude Include="MyResult.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mmfile.hpp">
+    <ClInclude Include="Mmfile.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,7 +44,7 @@
     <ClCompile Include="MyResult.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mmfile.cpp">
+    <ClCompile Include="Mmfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

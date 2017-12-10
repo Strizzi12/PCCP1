@@ -6,8 +6,10 @@
 #include <algorithm>
 #include "MyCalculator.h"
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 MyController::MyController()
 {
@@ -16,7 +18,7 @@ MyController::MyController()
 	PrintProcessTime = false;
 	OptimizeThreadCount = false;
 	MaxThreads = 0;
-	FileFilter = vector<string>();		//if fileFilter is "", then take all files
+	FileFilter = vector<string>();
 	FilePaths = vector<string>();
 	DepthOfRecursion = 0;
 	CurrentRecursion = 0;
@@ -162,6 +164,10 @@ void MyController::PrintTime()
 	if (PrintProcessTime == true)
 	{
 		printf("Time taken: %.6fs\n", double(StopTime - StartTime) / CLOCKS_PER_SEC);
+
+		duration<double> time_span = duration_cast<duration<double>>(StopTimeHighResolution - StartTimeHighResolution);
+		//printf("Time taken (high resolution time): %.6fs\n", time_span.count());
+		cout << "Time taken (high resolution time): " << time_span.count() << endl;
 	}
 }
 
@@ -170,11 +176,17 @@ clock_t MyController::GetTime()
 	return clock();
 }
 
+high_resolution_clock::time_point MyController::GetHighResolutionTime()
+{
+	return high_resolution_clock::now();
+}	
+
 void MyController::SetStartTime()
 {
 	if (PrintProcessTime == true)
 	{
 		StartTime = GetTime();
+		StartTimeHighResolution = GetHighResolutionTime();
 	}
 }
 
@@ -183,6 +195,7 @@ void MyController::SetStopTime()
 	if (PrintProcessTime == true)
 	{
 		StopTime = GetTime();
+		StopTimeHighResolution = GetHighResolutionTime();
 	}
 }
 
