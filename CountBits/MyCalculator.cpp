@@ -1,6 +1,7 @@
 #include "MyCalculator.h"
 #include <iostream>
 #include <vector>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/filesystem/string_file.hpp>
 #include <boost/foreach.hpp>
@@ -21,6 +22,13 @@ const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5,
 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
+bool replace(string& str, const string& from, const string& to) {
+	size_t start_pos = str.find(from);
+	if (start_pos == string::npos)
+		return false;
+	str.replace(start_pos, from.length(), to);
+	return true;
+}
 
 MyCalculator::MyCalculator()
 {
@@ -117,8 +125,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					catch (exception &ex)
 					{
 						cerr << "Error: " << ex.what() << endl;
-						//https://github.com/carlomilanesi/cpp-mmf/
-						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());
+						
+						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());	//https://github.com/carlomilanesi/cpp-mmf/
 						// Get pointer to the data
 						BYTE *data = (BYTE *)mmf.data();
 
@@ -141,8 +149,11 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					//Check file name
 					for (auto token : myController.FileFilter)
 					{
-						regex rx("(\.[a-zA-Z])\w*");
-						bool found = regex_match(token, rx);
+						boost::replace_all(in_place, "#", "@");
+						replace(token, string("*"), string("\\S*"));
+						regex rx(token);
+						bool found = regex_match(filename, rx);
+
 						if (found != true)
 						{
 							continue;
@@ -178,6 +189,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						result.SumBit0 += ((fileSize * 8) - sum1);
 						result.SumBit1 += sum1;
 						result.FileSize += fileSize;
+						break;
 					}
 				}
 			}
