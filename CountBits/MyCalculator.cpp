@@ -22,14 +22,6 @@ const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5,
 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
-bool replace(string& str, const string& from, const string& to) {
-	size_t start_pos = str.find(from);
-	if (start_pos == string::npos)
-		return false;
-	str.replace(start_pos, from.length(), to);
-	return true;
-}
-
 MyCalculator::MyCalculator()
 {
 }
@@ -111,7 +103,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							// Remember to unmap the file
 							file.close();
 						}
-						else 
+						else
 						{
 							cerr << "Could not map the file" << endl;
 							return MyResult();
@@ -125,7 +117,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					catch (exception &ex)
 					{
 						cerr << "Error: " << ex.what() << endl;
-						
+
 						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());	//https://github.com/carlomilanesi/cpp-mmf/
 						// Get pointer to the data
 						BYTE *data = (BYTE *)mmf.data();
@@ -149,8 +141,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					//Check file name
 					for (auto token : myController.FileFilter)
 					{
-						boost::replace_all(in_place, "#", "@");
-						replace(token, string("*"), string("\\S*"));
+						boost::replace_all(token, "*", "([a-zA-Z0-9\.\-_]*)");
 						regex rx(token);
 						bool found = regex_match(filename, rx);
 
