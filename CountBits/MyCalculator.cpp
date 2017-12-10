@@ -6,6 +6,7 @@
 #include <boost/foreach.hpp>
 #include "MyResult.h"
 #include <regex>
+#include "mmfile.hpp"
 
 const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
@@ -90,7 +91,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						boost::iostreams::mapped_file_source file; //is already readonly
 						file.open(fullPath.c_str(), fileSize);
 						// Check if file was successfully opened
-						if (file.is_open()) {
+						if (file.is_open())
+						{
 
 							// Get pointer to the data
 							BYTE *data = (BYTE *)file.data();
@@ -101,7 +103,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							// Remember to unmap the file
 							file.close();
 						}
-						else {
+						else 
+						{
 							cerr << "Could not map the file" << endl;
 							return MyResult();
 						}
@@ -114,6 +117,18 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					catch (exception &ex)
 					{
 						cerr << "Error: " << ex.what() << endl;
+						//https://github.com/carlomilanesi/cpp-mmf/
+						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());
+						// Get pointer to the data
+						BYTE *data = (BYTE *)mmf.data();
+
+						// Do something with the data
+						sum1 = myCalculator.CountBits(data, fileSize);
+
+						result.SumBit0 += ((fileSize * 8) - sum1);
+						result.SumBit1 += sum1;
+						result.FileSize += fileSize;
+
 						continue;
 					}
 
@@ -166,7 +181,6 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					}
 				}
 			}
-
 		}
 	}
 	catch (boost::filesystem::filesystem_error &ex)
