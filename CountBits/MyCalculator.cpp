@@ -1,11 +1,13 @@
 #include "MyCalculator.h"
 #include <iostream>
 #include <vector>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/filesystem/string_file.hpp>
 #include <boost/foreach.hpp>
 #include "MyResult.h"
 #include <regex>
+#include "mmfile.hpp"
 
 const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
@@ -20,6 +22,17 @@ const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5,
 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
+static const BYTE BitsSetTable65536[65536] =
+{
+#   define B2(n)  n,      n+1,      n+1,      n+2
+#   define B4(n)  B2(n),  B2(n+1),  B2(n+1),  B2(n+2)
+#   define B6(n)  B4(n),  B4(n+1),  B4(n+1),  B4(n+2)
+#   define B8(n)  B6(n),  B6(n+1),  B6(n+1),  B6(n+2)
+#   define B10(n) B8(n),  B8(n+1),  B8(n+1),  B8(n+2)
+#   define B12(n) B10(n), B10(n+1), B10(n+1), B10(n+2)
+#   define B14(n) B12(n), B12(n+1), B12(n+1), B12(n+2)
+		   B14(0),B14(1), B14(1),   B14(2)
+};
 
 MyCalculator::MyCalculator()
 {
@@ -55,14 +68,14 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				myController.CurrentRecursion++;
 				//call countBits function again with new path
 				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
-				result.SumBit0 += temp.SumBit0;
+				//result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
 			}
 			else if (is_directory(p) && myController.DepthOfRecursion == 0)
 			{
 				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
-				result.SumBit0 += temp.SumBit0;
+				//result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
 			}
@@ -84,14 +97,18 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					{
 						continue;
 					}
-					myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+					if (myController.MoreInfo == true)
+					{
+						cout << "Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)) << endl;
+					}
+					//myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
 					try
 					{
 						boost::iostreams::mapped_file_source file; //is already readonly
 						file.open(fullPath.c_str(), fileSize);
 						// Check if file was successfully opened
-						if (file.is_open()) {
-
+						if (file.is_open())
+						{
 							// Get pointer to the data
 							BYTE *data = (BYTE *)file.data();
 
@@ -101,7 +118,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							// Remember to unmap the file
 							file.close();
 						}
-						else {
+						else
+						{
 							cerr << "Could not map the file" << endl;
 							return MyResult();
 						}
@@ -114,10 +132,22 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					catch (exception &ex)
 					{
 						cerr << "Error: " << ex.what() << endl;
+
+						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());	//https://github.com/carlomilanesi/cpp-mmf/
+						// Get pointer to the data
+						BYTE *data = (BYTE *)mmf.data();
+
+						// Do something with the data
+						sum1 = myCalculator.CountBits(data, fileSize);
+
+						//result.SumBit0 += ((fileSize * 8) - sum1);
+						result.SumBit1 += sum1;
+						result.FileSize += fileSize;
+
 						continue;
 					}
 
-					result.SumBit0 += ((fileSize * 8) - sum1);
+					//result.SumBit0 += ((fileSize * 8) - sum1);
 					result.SumBit1 += sum1;
 					result.FileSize += fileSize;
 				}
@@ -126,8 +156,10 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					//Check file name
 					for (auto token : myController.FileFilter)
 					{
-						regex rx("(\.[a-zA-Z])\w*");
-						bool found = regex_match(token, rx);
+						boost::replace_all(token, "*", "([a-zA-Z0-9\._\-]*)");
+						regex rx(token);
+						bool found = regex_match(filename, rx);
+
 						if (found != true)
 						{
 							continue;
@@ -139,7 +171,11 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						{
 							continue;
 						}
-						myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+						if (myController.MoreInfo == true)
+						{
+							cout << "Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)) << endl;
+						}
+						//myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
 
 						boost::iostreams::mapped_file_source file; //is already readonly
 						file.open(fullPath.c_str(), fileSize);
@@ -160,13 +196,13 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							cerr << "Could not map the file" << endl;
 							return MyResult();
 						}
-						result.SumBit0 += ((fileSize * 8) - sum1);
+						//result.SumBit0 += ((fileSize * 8) - sum1);
 						result.SumBit1 += sum1;
 						result.FileSize += fileSize;
+						break;
 					}
 				}
 			}
-
 		}
 	}
 	catch (boost::filesystem::filesystem_error &ex)
@@ -187,13 +223,12 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 */
 uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 {
-	//This array needs to be initialized in here	
-
 	uint64_t sumOf1 = 0;
 
 	//#pragma omp parallel for reduction (+:total)
 	for (int i = 0; i < fileSize; i++)
 	{
+		//auto anz1 = Cheating[data[i]];
 		auto anz1 = Cheating[data[i]];
 		sumOf1 += (uint64_t)anz1;
 	}
