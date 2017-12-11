@@ -17,27 +17,16 @@ Here is an example on how the application can be called and it's parameter:
 cntFileBits [-r [n]] [-f fileFilter] [-t maxThreads] [-h] [-p] [-v] [-w] [-s startPath]
 
 -s startPath	Gibt das Startverzeichnis an, ab dem die Dateien gelesen werden sollen;
-
                 die Option -s kann auch mehrfach angegeben werden, z.B. wenn zwei Partitionen durchsucht werden sollen
-                
 -r [n]		    Rekursives Lesen der Unterverzeichnisse; wenn n (bei n >= 1) angegeben, dann
-
                 bestimmt n die Tiefe der Rekursion; wird n nicht angegeben, dann werden
-                
                 rekursiv alle unter dem Startverzeichnis stehenden Verzeichnisse und deren Dateien gelesen;
-                
 -f fileFilter	fileFilter gibt an, welche Dateien gelesen werden sollen; z.B. *.iso oder bild*.jpg;
-
                 wird diese Option nicht angegeben, so werden alle Dateien gelesen;
-                
 -t maxThreads	maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert.
-
 -h		        Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird.
-
 -p		        Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden
-
 -v		        Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout
-
 -w		        Warten auf eine Taste unmittelbar bevor die applikation terminiert.
 
 ### Code
