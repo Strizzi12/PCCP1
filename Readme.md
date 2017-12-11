@@ -1,4 +1,4 @@
- Parallel Computing Course
+# Parallel Computing Course
 
 Parallel Computing is a specialization in the 3rd semester of the master's degree at the University of Applied Sciences in Salzburg.
 
@@ -16,18 +16,18 @@ Here is an example on how the application can be called and it's parameter:
 
 cntFileBits [-r [n]] [-f fileFilter] [-t maxThreads] [-h] [-p] [-v] [-w] [-s startPath]
 
--s startPath	Gibt das Startverzeichnis an, ab dem die Dateien gelesen werden sollen;
-                die Option -s kann auch mehrfach angegeben werden, z.B. wenn zwei Partitionen durchsucht werden sollen
--r [n]		    Rekursives Lesen der Unterverzeichnisse; wenn n (bei n >= 1) angegeben, dann
-                bestimmt n die Tiefe der Rekursion; wird n nicht angegeben, dann werden
-                rekursiv alle unter dem Startverzeichnis stehenden Verzeichnisse und deren Dateien gelesen;
--f fileFilter	fileFilter gibt an, welche Dateien gelesen werden sollen; z.B. *.iso oder bild*.jpg;
-                wird diese Option nicht angegeben, so werden alle Dateien gelesen;
--t maxThreads	maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert.
--h		        Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird.
--p		        Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden
--v		        Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout
--w		        Warten auf eine Taste unmittelbar bevor die applikation terminiert.
+-s startPath	Gibt das Startverzeichnis an, ab dem die Dateien gelesen werden sollen;<br />
+                die Option -s kann auch mehrfach angegeben werden, z.B. wenn zwei Partitionen durchsucht werden sollen<br />
+-r [n]		    Rekursives Lesen der Unterverzeichnisse; wenn n (bei n >= 1) angegeben, dann<br />
+                bestimmt n die Tiefe der Rekursion; wird n nicht angegeben, dann werden<br />
+                rekursiv alle unter dem Startverzeichnis stehenden Verzeichnisse und deren Dateien gelesen;<br />
+-f fileFilter	fileFilter gibt an, welche Dateien gelesen werden sollen; z.B. *.iso oder bild*.jpg;<br />
+                wird diese Option nicht angegeben, so werden alle Dateien gelesen;<br />
+-t maxThreads	maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert<br />
+-h		        Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird<br />
+-p		        Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden<br />
+-v		        Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout<br />
+-w		        Warten auf eine Taste unmittelbar bevor die applikation terminiert<br />
 
 ### Code
 
@@ -73,12 +73,12 @@ file.open(fullPath.c_str(), fileSize);
 // Check if file was successfully opened
 if (file.is_open())
 {
-	// Get pointer to the data
-	BYTE *data = (BYTE *)file.data();
-	// Do something with the data
-	sum1 = myCalculator.CountBits(data, fileSize);
-	// Remember to unmap the file
-	file.close();
+    // Get pointer to the data
+    BYTE *data = (BYTE *)file.data();
+    // Do something with the data
+    sum1 = myCalculator.CountBits(data, fileSize);
+    // Remember to unmap the file
+    file.close();
 }
 ```
 
@@ -86,16 +86,15 @@ The bit count function is implemented like this:
 ```cpp
 uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 {
-	uint64_t sumOf1 = 0;
+    uint64_t sumOf1 = 0;
 
-	//#pragma omp parallel for reduction (+:total)
-	for (int i = 0; i < fileSize; i++)
-	{
-		//auto anz1 = Cheating[data[i]];
-		auto anz1 = Cheating[data[i]];
-		sumOf1 += (uint64_t)anz1;
-	}
-	return sumOf1;
+    for (int i = 0; i < fileSize; i++)
+    {
+        //auto anz1 = Cheating[data[i]];
+        auto anz1 = Cheating[data[i]];
+        sumOf1 += (uint64_t)anz1;
+    }
+    return sumOf1;
 }
 ```
 
@@ -107,9 +106,9 @@ for (auto token : myController.FileFilter)
     regex rx(token);
     bool found = regex_match(filename, rx);
     if (found != true)
-	{
-		continue;
-	}
+    {
+        continue;
+    }
     //Calculation stuff
 }
 ```
