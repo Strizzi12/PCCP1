@@ -141,7 +141,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					//Check file name
 					for (auto token : myController.FileFilter)
 					{
-						boost::replace_all(token, "*", "([a-zA-Z0-9\.\-_]*)");
+						boost::replace_all(token, "*", "([a-zA-Z0-9\._\-]*)");
 						regex rx(token);
 						bool found = regex_match(filename, rx);
 
@@ -204,8 +204,6 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 */
 uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 {
-	//This array needs to be initialized in here	
-
 	uint64_t sumOf1 = 0;
 
 	//#pragma omp parallel for reduction (+:total)
