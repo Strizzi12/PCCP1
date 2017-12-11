@@ -16,18 +16,18 @@ Here is an example on how the application can be called and it's parameter:
 
 cntFileBits [-r [n]] [-f fileFilter] [-t maxThreads] [-h] [-p] [-v] [-w] [-s startPath]
 
-* -s startPath<t />Gibt das Startverzeichnis an, ab dem die Dateien gelesen werden sollen;<br />
-<t /><t /><t /><t />die Option -s kann auch mehrfach angegeben werden, z.B. wenn zwei Partitionen durchsucht werden sollen<br />
-* -r [n]<t /><t />Rekursives Lesen der Unterverzeichnisse; wenn n (bei n >= 1) angegeben, dann<br />
-<t /><t /><t /><t />bestimmt n die Tiefe der Rekursion; wird n nicht angegeben, dann werden<br />
-<t /><t /><t /><t />rekursiv alle unter dem Startverzeichnis stehenden Verzeichnisse und deren Dateien gelesen;<br />
-* -f fileFilter<t />fileFilter gibt an, welche Dateien gelesen werden sollen; z.B. *.iso oder bild*.jpg;<br />
-<t /><t /><t /><t />wird diese Option nicht angegeben, so werden alle Dateien gelesen;<br />
-* -t maxThreads<t />maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert<br />
-* -h<t /><t /><t />Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird<br />
-* -p<t /><t /><t />Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden<br />
-* -v<t /><t /><t />Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout<br />
-* -w<t /><t /><t />Warten auf eine Taste unmittelbar bevor die applikation terminiert<br />
+* -s startPath: Gibt das Startverzeichnis an, ab dem die Dateien gelesen werden sollen;<br />
+                die Option -s kann auch mehrfach angegeben werden, z.B. wenn zwei Partitionen durchsucht werden sollen<br />
+* -r [n]: Rekursives Lesen der Unterverzeichnisse; wenn n (bei n >= 1) angegeben, dann<br />
+                bestimmt n die Tiefe der Rekursion; wird n nicht angegeben, dann werden<br />
+                rekursiv alle unter dem Startverzeichnis stehenden Verzeichnisse und deren Dateien gelesen;<br />
+* -f fileFilter: fileFilter gibt an, welche Dateien gelesen werden sollen; z.B. *.iso oder bild*.jpg;<br />
+                wird diese Option nicht angegeben, so werden alle Dateien gelesen;<br />
+* -t maxThreads: maximale Anzahl der Threads; wird diese Option nicht angegeben, dann wird die Anzahl der Threads automatisch optimiert<br />
+* -h: Anzeige der Hilfe & Copyright Info; wird automatisch angezeigt, wenn beim Programmstart keinen Option angegeben wird<br />
+* -p: Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden<br />
+* -v: Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout<br />
+* -w: Warten auf eine Taste unmittelbar bevor die applikation terminiert<br />
 
 ### Code
 
