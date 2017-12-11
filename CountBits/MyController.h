@@ -2,8 +2,10 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 class MyController
 {
@@ -24,6 +26,8 @@ public:
 	bool MoreInfo;
 	clock_t StartTime;
 	clock_t StopTime;
+	high_resolution_clock::time_point StartTimeHighResolution;
+	high_resolution_clock::time_point StopTimeHighResolution;
 
 	//Functions
 	void ParseInputArguments(int argc, char* argv[]);
@@ -31,7 +35,8 @@ public:
 	void Wait();
 	void MyPrint(string str);
 	void PrintTime();
-	clock_t GetTime();
+	static clock_t GetTime();
+	static high_resolution_clock::time_point GetHighResolutionTime();
 	void SetStartTime();
 	void SetStopTime();
 
