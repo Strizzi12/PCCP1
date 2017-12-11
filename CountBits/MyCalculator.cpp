@@ -22,6 +22,18 @@ const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5,
 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
+static const BYTE BitsSetTable65536[65536] =
+{
+#   define B2(n)  n,      n+1,      n+1,      n+2
+#   define B4(n)  B2(n),  B2(n+1),  B2(n+1),  B2(n+2)
+#   define B6(n)  B4(n),  B4(n+1),  B4(n+1),  B4(n+2)
+#   define B8(n)  B6(n),  B6(n+1),  B6(n+1),  B6(n+2)
+#   define B10(n) B8(n),  B8(n+1),  B8(n+1),  B8(n+2)
+#   define B12(n) B10(n), B10(n+1), B10(n+1), B10(n+2)
+#   define B14(n) B12(n), B12(n+1), B12(n+1), B12(n+2)
+		   B14(0),B14(1), B14(1),   B14(2)
+};
+
 MyCalculator::MyCalculator()
 {
 }
@@ -56,14 +68,14 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				myController.CurrentRecursion++;
 				//call countBits function again with new path
 				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
-				result.SumBit0 += temp.SumBit0;
+				//result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
 			}
 			else if (is_directory(p) && myController.DepthOfRecursion == 0)
 			{
 				temp = myCalculator.CountBitsOf1ForPath(p.string().c_str(), myController);
-				result.SumBit0 += temp.SumBit0;
+				//result.SumBit0 += temp.SumBit0;
 				result.SumBit1 += temp.SumBit1;
 				result.FileSize += temp.FileSize;
 			}
@@ -85,7 +97,11 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 					{
 						continue;
 					}
-					myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+					if (myController.MoreInfo == true)
+					{
+						cout << "Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)) << endl;
+					}
+					//myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
 					try
 					{
 						boost::iostreams::mapped_file_source file; //is already readonly
@@ -93,7 +109,6 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						// Check if file was successfully opened
 						if (file.is_open())
 						{
-
 							// Get pointer to the data
 							BYTE *data = (BYTE *)file.data();
 
@@ -125,14 +140,14 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						// Do something with the data
 						sum1 = myCalculator.CountBits(data, fileSize);
 
-						result.SumBit0 += ((fileSize * 8) - sum1);
+						//result.SumBit0 += ((fileSize * 8) - sum1);
 						result.SumBit1 += sum1;
 						result.FileSize += fileSize;
 
 						continue;
 					}
 
-					result.SumBit0 += ((fileSize * 8) - sum1);
+					//result.SumBit0 += ((fileSize * 8) - sum1);
 					result.SumBit1 += sum1;
 					result.FileSize += fileSize;
 				}
@@ -156,7 +171,11 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						{
 							continue;
 						}
-						myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
+						if (myController.MoreInfo == true)
+						{
+							cout << "Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)) << endl;
+						}
+						//myController.MyPrint("Processing file: " + filename + " with filesize of " + to_string(uint64_t(fileSize)));
 
 						boost::iostreams::mapped_file_source file; //is already readonly
 						file.open(fullPath.c_str(), fileSize);
@@ -177,7 +196,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							cerr << "Could not map the file" << endl;
 							return MyResult();
 						}
-						result.SumBit0 += ((fileSize * 8) - sum1);
+						//result.SumBit0 += ((fileSize * 8) - sum1);
 						result.SumBit1 += sum1;
 						result.FileSize += fileSize;
 						break;
@@ -209,6 +228,7 @@ uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
 	//#pragma omp parallel for reduction (+:total)
 	for (int i = 0; i < fileSize; i++)
 	{
+		//auto anz1 = Cheating[data[i]];
 		auto anz1 = Cheating[data[i]];
 		sumOf1 += (uint64_t)anz1;
 	}

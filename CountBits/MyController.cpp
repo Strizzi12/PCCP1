@@ -141,6 +141,7 @@ void MyController::PrintHelp()
 	cout << "-p		Ausgabe der Prozesserungszeit auf stdout in Sekunden.Millisekunden" << endl;
 	cout << "-v		Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout" << endl;
 	cout << "-w		Warten auf eine Taste unmittelbar bevor die applikation terminiert." << endl << endl;
+	cout << "Copyright© by Mike Thomas and Andreas Reschenhofer" << endl;
 }
 
 void MyController::Wait()
