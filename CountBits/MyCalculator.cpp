@@ -8,6 +8,7 @@
 #include "MyResult.h"
 #include <regex>
 #include "mmfile.hpp"
+#include <windows.h>
 
 const BYTE Cheating[256] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2,
@@ -41,6 +42,25 @@ MyCalculator::MyCalculator()
 
 MyCalculator::~MyCalculator()
 {
+}
+
+uint64_t MyCalculator::GetFileSizeFast(wstring const &path)
+{
+	WIN32_FIND_DATAW data;
+	HANDLE h = FindFirstFileW(path.c_str(), &data);
+	if (h == INVALID_HANDLE_VALUE)
+		return -1;
+
+	FindClose(h);
+
+	return data.nFileSizeLow | (uint64_t)data.nFileSizeHigh << 32;
+}
+
+uint64_t MyCalculator::GetFileSizeFaster(const char *filename)
+{
+	struct __stat64 st;
+	__stat64(filename, &st);
+	return st.st_size;
 }
 
 ifstream::pos_type MyCalculator::GetFileSize(const char* fileName)
@@ -92,8 +112,10 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				if (myController.FileFilter.empty() == true)
 				{
 					string fullPath = string(path) + "\\" + filename;
-					const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
-					if (uint64_t(fileSize) == 0)
+					//const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
+					//const auto fileSize = myCalculator.GetFileSizeFast(StringToWString(fullPath));
+					const auto fileSize = myCalculator.GetFileSizeFaster(fullPath.c_str());
+					if (fileSize == 0)
 					{
 						continue;
 					}
@@ -166,7 +188,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						}
 
 						string fullPath = string(path) + "\\" + filename;
-						const auto fileSize = myCalculator.GetFileSize(fullPath.c_str());
+						const auto fileSize = myCalculator.GetFileSizeFaster(fullPath.c_str());
 						if (uint64_t(fileSize) == 0)
 						{
 							continue;
