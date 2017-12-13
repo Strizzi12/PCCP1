@@ -108,8 +108,8 @@ At first an ifstream object from the file was created but only the filesize was 
 ```cpp
 ifstream::pos_type MyCalculator::GetFileSize(const char* fileName)
 {
-	ifstream in(fileName, ios::binary | ios::ate);
-	return in.tellg();
+    ifstream in(fileName, ios::binary | ios::ate);
+    return in.tellg();
 }
 ```
 
@@ -121,9 +121,9 @@ Then a new method was used and the saved time is noticable:
 ```cpp
 uint64_t MyCalculator::GetFileSizeFaster(const char *filename)
 {
-	struct __stat64 st;
-	__stat64(filename, &st);
-	return st.st_size;
+    struct __stat64 st;
+    __stat64(filename, &st);
+    return st.st_size;
 }
 ```
 
@@ -153,15 +153,15 @@ The first method is form [here](https://github.com/carlomilanesi/cpp-mmf/):
 memory_mapped_file::read_only_mmf mmf(fullPath.c_str(), true);
 if (mmf.is_open())
 {
-	// Get pointer to the data
-	BYTE *data = (BYTE *)mmf.data();
+    // Get pointer to the data
+    BYTE *data = (BYTE *)mmf.data();
     // Do something with the data
-	sum1 = myCalculator.CountBits((BYTE *)mmf.data(), fileSize);
+    sum1 = myCalculator.CountBits((BYTE *)mmf.data(), fileSize);
 
-	//result.SumBit0 += ((fileSize * 8) - sum1);
-	result.SumBit1 += sum1;
-	result.FileSize += fileSize;
-	continue;
+    //result.SumBit0 += ((fileSize * 8) - sum1);
+    result.SumBit1 += sum1;
+    result.FileSize += fileSize;
+    continue;
 }
 ```
 
@@ -173,12 +173,12 @@ ifstream file(fullPath, ios::in | ios::binary);
 unsigned char a;
 if (file.is_open())
 {
-	while (!file.eof())
+    while (!file.eof())
     {
         file.read(reinterpret_cast<char *>(&a), sizeof(a));
         auto anz1 = Cheating[a];
-		sum1 += (uint64_t)anz1;
-	}
+        sum1 += (uint64_t)anz1;
+    }
 }
 ```
 
