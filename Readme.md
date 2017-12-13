@@ -188,6 +188,14 @@ And if this method also failes, then the file is skipped.
 Since the hard disk is the weak link in this, no additional threads are used in this application because this would just create more overhead.
 The only usefull use of threads would be if there are 2 paths with different underlying hard disks.
 
+### Scan over C:\Users
+
+The first attempt to calculate the bits in C:\Users on my home PC.
+![Scan over C:\Users at home](https://github.com/Strizzi12/Parallel-Computing/blob/master/Images/ScanoverC-Users.png?raw=true)
+
+The complete attempt to calculate the bits in C:\Users on my laptop.
+![Scan over C:\Users at home](https://github.com/Strizzi12/Parallel-Computing/blob/master/Images/ScanoverC-Userscomplete.png?raw=true)
+
 ## Built With
 
 * [Boost Library 1.65.1](http://www.boost.org/users/history/version_1_65_1.html) - The library used to map files from the hard drive
