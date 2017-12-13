@@ -29,10 +29,12 @@ cntFileBits [-r [n]] [-f fileFilter] [-t maxThreads] [-h] [-p] [-v] [-w] [-s sta
 * -v: Erweiterte Ausgabe etwaiger Prozessierungsinformationen auf stdout<br />
 * -w: Warten auf eine Taste unmittelbar bevor die applikation terminiert<br />
 
-### Code
+## Code
 
 At first the input parameters from the command line are parsed and variables are set.
 A help function is called if invalid parameter are parsed.
+
+### Counting Bits
 
 The basic idea of counting the 0 and 1 bits is by using a predefined lookup table, where the number of ones are stored. For 8 bit the lookup table looks like:
 ```cpp
@@ -65,6 +67,23 @@ const unsigned char BitsSetTable256[256] = {
            B6(0),B6(1), B6(1),   B6(2)
 };
 ```
+A try with a 16 bit lookup table didn´t save much time, since the counting itself is already pretty fast.
+The bit count function is implemented like this:
+```cpp
+uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
+{
+    uint64_t sumOf1 = 0;
+
+    for (int i = 0; i < fileSize; i++)
+    {
+        //auto anz1 = Cheating[data[i]];
+        auto anz1 = Cheating[data[i]];
+        sumOf1 += (uint64_t)anz1;
+    }
+    return sumOf1;
+}
+```
+### Reading the file
 
 To read a file the boost implemented class "mapped_file_source" is used. With this method the complete file is mapped and can easily be opened without reading the bytes beforehand.
 ```cpp
@@ -81,22 +100,38 @@ if (file.is_open())
     file.close();
 }
 ```
+Other methods for reading the file like ifstream were slow as fuck.
 
-The bit count function is implemented like this:
+### Getting the file size
+
+To get the file size, different methods were used. 
+At first an ifstream object from the file was created but only the filesize was returned.
+
 ```cpp
-uint64_t MyCalculator::CountBits(BYTE *data, int fileSize)
+ifstream::pos_type MyCalculator::GetFileSize(const char* fileName)
 {
-    uint64_t sumOf1 = 0;
-
-    for (int i = 0; i < fileSize; i++)
-    {
-        //auto anz1 = Cheating[data[i]];
-        auto anz1 = Cheating[data[i]];
-        sumOf1 += (uint64_t)anz1;
-    }
-    return sumOf1;
+	ifstream in(fileName, ios::binary | ios::ate);
+	return in.tellg();
 }
 ```
+
+After profiling the application it showed that this method the most time is wasted, as shown in the image below:
+
+![FileSize Profiling](https://github.com/Strizzi12/Parallel-Computing/blob/master/Images/Getfilesize1.PNG?raw=true)
+
+Then a new method was used and the saved time is noticable:
+```cpp
+uint64_t MyCalculator::GetFileSizeFaster(const char *filename)
+{
+	struct __stat64 st;
+	__stat64(filename, &st);
+	return st.st_size;
+}
+```
+
+![FileSize Profiling](https://github.com/Strizzi12/Parallel-Computing/blob/master/Images/Getfilesize2.PNG?raw=true)
+
+### File Filter
 
 To assign a file filter a regex pattern is used to match any * in the given input parameter:
 ```cpp
@@ -113,6 +148,48 @@ for (auto token : myController.FileFilter)
 }
 ```
 
+### File used by other process
+If a file is used by another process, a try/catch block catches this exception and some other methods are tried to get the bits counted in this not readable file.
+The first method is form [here](https://github.com/carlomilanesi/cpp-mmf/):
+```cpp
+memory_mapped_file::read_only_mmf mmf(fullPath.c_str(), true);
+if (mmf.is_open())
+{
+	// Get pointer to the data
+	BYTE *data = (BYTE *)mmf.data();
+    // Do something with the data
+	sum1 = myCalculator.CountBits((BYTE *)mmf.data(), fileSize);
+
+	//result.SumBit0 += ((fileSize * 8) - sum1);
+	result.SumBit1 += sum1;
+	result.FileSize += fileSize;
+	continue;
+}
+```
+
+Sometimes this method doesn´t work either, so the normal convinient way of opening a file is used:
+
+```cpp
+memory_mapped_file::read_only_mmf mmf(fullPath.c_str(), true);
+ifstream file(fullPath, ios::in | ios::binary);
+unsigned char a;
+if (file.is_open())
+{
+	while (!file.eof())
+    {
+        file.read(reinterpret_cast<char *>(&a), sizeof(a));
+        auto anz1 = Cheating[a];
+		sum1 += (uint64_t)anz1;
+	}
+}
+```
+
+And if this method also failes, then the file is skipped.
+## Conclusion
+
+Since the hard disk is the weak link in this, no additional threads are used in this application because this would just create more overhead.
+The only usefull use of threads would be if there are 2 paths with different underlying hard disks.
+
 ## Built With
 
 * [Boost Library 1.65.1](http://www.boost.org/users/history/version_1_65_1.html) - The library used to map files from the hard drive
@@ -122,7 +199,7 @@ for (auto token : myController.FileFilter)
 * **Mike Thomas**
 * **Andreas Reschenhofer**
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/Strizzi12/Parallel-Computing/contributors) who participated in this project.
 
 ## License
 
