@@ -142,33 +142,56 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						}
 						else
 						{
-							cerr << "Could not map the file" << endl;
+							cerr << "Could not map (in normal method) the file: " << fullPath << endl;
 							return MyResult();
 						}
 					}
-					catch (boost::filesystem::filesystem_error &ex)
-					{
-						cerr << "Boost filesystem error: " << ex.what() << endl;
-						continue;
-					}
 					catch (exception &ex)
 					{
-						cerr << "Error: " << ex.what() << endl;
+						//cerr << "Error: " << ex.what() << endl;
+						try
+						{
+							memory_mapped_file::read_only_mmf mmf(fullPath.c_str(), true);	//https://github.com/carlomilanesi/cpp-mmf/
+							if (mmf.is_open())
+							{
+								// Get pointer to the data
+								BYTE *data = (BYTE *)mmf.data();
 
-						memory_mapped_file::read_only_mmf mmf(fullPath.c_str());	//https://github.com/carlomilanesi/cpp-mmf/
-						// Get pointer to the data
-						BYTE *data = (BYTE *)mmf.data();
+								// Do something with the data
+								sum1 = myCalculator.CountBits((BYTE *)mmf.data(), fileSize);
 
-						// Do something with the data
-						sum1 = myCalculator.CountBits(data, fileSize);
+								//result.SumBit0 += ((fileSize * 8) - sum1);
+								result.SumBit1 += sum1;
+								result.FileSize += fileSize;
+								continue;
+							}
+							else
+							{
+								ifstream file(fullPath, ios::in | ios::binary);
+								unsigned char a;
 
-						//result.SumBit0 += ((fileSize * 8) - sum1);
-						result.SumBit1 += sum1;
-						result.FileSize += fileSize;
-
+								if (file.is_open())
+								{
+									while (!file.eof())
+									{
+										file.read(reinterpret_cast<char *>(&a), sizeof(a));
+										auto anz1 = Cheating[a];
+										sum1 += (uint64_t)anz1;
+									}
+								}
+								else
+								{
+									cerr << "Could not map (in fabi method) the file: " << fullPath << endl;
+									return MyResult();
+								}								
+							}							
+						}
+						catch (exception &ex2)
+						{
+							cerr << "Inner Error: " << ex2.what() << endl;
+						}
 						continue;
 					}
-
 					//result.SumBit0 += ((fileSize * 8) - sum1);
 					result.SumBit1 += sum1;
 					result.FileSize += fileSize;
