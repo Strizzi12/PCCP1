@@ -143,7 +143,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						else
 						{
 							cerr << "Could not map (in normal method) the file: " << fullPath << endl;
-							return MyResult();
+							return MyResult::MyResult();
 						}
 					}
 					catch (exception &ex)
@@ -182,7 +182,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 								else
 								{
 									cerr << "Could not map (in fabi method) the file: " << fullPath << endl;
-									return MyResult();
+									return MyResult::MyResult();
 								}								
 							}							
 						}
@@ -241,7 +241,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						else 
 						{
 							cerr << "Could not map the file" << endl;
-							return MyResult();
+							return MyResult::MyResult();
 						}
 						//result.SumBit0 += ((fileSize * 8) - sum1);
 						result.SumBit1 += sum1;
@@ -251,17 +251,17 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				}
 			}
 		}
-		myController.CurrentRecursion -= 1;
+		myController.CurrentRecursion -= 1;	//Fix for depth of recursion, not perfect but it goes
 	}
 	catch (boost::filesystem::filesystem_error &ex)
 	{
 		cerr << "Boost filesystem error: " << ex.what() << endl;
-		return MyResult();
+		return MyResult::MyResult();
 	}
 	catch (exception &ex)
 	{
 		cerr << "Error: " << ex.what() << endl;
-		return MyResult();
+		return MyResult::MyResult();
 	}
 	return result;
 }

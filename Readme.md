@@ -58,11 +58,16 @@ const BYTE Cheating[256] =
 This can also be done in a much more readable way (See [this](https://stackoverflow.com/questions/41104560/how-to-generate-16-bit-lookup-table-for-counting-set-bits) post for further information on how this works):
 
 ```cpp
-const unsigned char BitsSetTable256[256] = {
-#   define B2(n) n,     n+1,     n+1,     n+2
-#   define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
-#   define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
-           B6(0),B6(1), B6(1),   B6(2)
+static const BYTE BitsSetTable65536[65536] =
+{
+#   define B2(n)  n,      n+1,      n+1,      n+2
+#   define B4(n)  B2(n),  B2(n+1),  B2(n+1),  B2(n+2)
+#   define B6(n)  B4(n),  B4(n+1),  B4(n+1),  B4(n+2)
+#   define B8(n)  B6(n),  B6(n+1),  B6(n+1),  B6(n+2)
+#   define B10(n) B8(n),  B8(n+1),  B8(n+1),  B8(n+2)
+#   define B12(n) B10(n), B10(n+1), B10(n+1), B10(n+2)
+#   define B14(n) B12(n), B12(n+1), B12(n+1), B12(n+2)
+		   B14(0),B14(1), B14(1),   B14(2)
 };
 ```
 A try with a 16 bit lookup table didn´t save much time, since the counting itself is already pretty fast.
