@@ -226,7 +226,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 						file.open(fullPath.c_str(), fileSize);
 
 						// Check if file was successfully opened
-						if (file.is_open()) {
+						if (file.is_open()) 
+						{
 
 							// Get pointer to the data
 							BYTE *data = (BYTE *)file.data();
@@ -237,7 +238,8 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 							// Remember to unmap the file
 							file.close();
 						}
-						else {
+						else 
+						{
 							cerr << "Could not map the file" << endl;
 							return MyResult();
 						}
@@ -249,6 +251,7 @@ MyResult MyCalculator::CountBitsOf1ForPath(const char *path, MyController &myCon
 				}
 			}
 		}
+		myController.CurrentRecursion -= 1;
 	}
 	catch (boost::filesystem::filesystem_error &ex)
 	{
